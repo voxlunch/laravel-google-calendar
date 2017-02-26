@@ -84,12 +84,12 @@ class Event
         array_set($this->googleEvent, $name, $value);
     }
 
-    public function exists(): bool
+    public function exists()//: bool
     {
         return $this->id != '';
     }
 
-    public function isAllDayEvent(): bool
+    public function isAllDayEvent()//: bool
     {
         return is_null($this->googleEvent['start']['dateTime']);
     }
@@ -107,7 +107,7 @@ class Event
         Carbon $endDateTime = null,
         array $queryParameters = [],
         string $calendarId = null
-    ): Collection {
+    )/*: Collection*/ {
         $googleCalendar = static::getGoogleCalendar($calendarId);
 
         $googleEvents = $googleCalendar->listEvents($startDateTime, $endDateTime, $queryParameters);
@@ -128,7 +128,7 @@ class Event
      *
      * @return \Spatie\GoogleCalendar\Event
      */
-    public static function find($eventId, $calendarId = null): Event
+    public static function find($eventId, $calendarId = null)//: Event
     {
         $googleCalendar = static::getGoogleCalendar($calendarId);
 
@@ -137,9 +137,13 @@ class Event
         return static::createFromGoogleCalendarEvent($googleEvent, $calendarId);
     }
 
-    public function save($method = null): Event
+    public function save($method = null)//: Event
     {
-        $method = $method ?? ($this->exists() ? 'updateEvent' : 'insertEvent');
+        // $method = $method ?? ($this->exists() ? 'updateEvent' : 'insertEvent');
+
+        if (is_null($method)) {
+            $method = $this->exists() ? 'updateEvent' : 'insertEvent';
+        }
 
         $googleCalendar = $this->getGoogleCalendar($this->calendarId);
 
@@ -153,7 +157,11 @@ class Event
      */
     public function delete(string $eventId = null)
     {
-        $this->getGoogleCalendar($this->calendarId)->deleteEvent($eventId ?? $this->id);
+        if (is_null($eventId)) {
+            $eventId = $this->id;
+        }
+
+        $this->getGoogleCalendar($this->calendarId)->deleteEvent($eventId);
     }
 
     /**
@@ -163,7 +171,11 @@ class Event
      */
     protected static function getGoogleCalendar($calendarId = null)
     {
-        $calendarId = $calendarId ?? config('laravel-google-calendar.calendar_id');
+        // $calendarId = $calendarId ?? config('laravel-google-calendar.calendar_id');
+
+        if (is_null($calendarId)) {
+            $calendarId = config('laravel-google-calendar.calendar_id');
+        }
 
         return GoogleCalendarFactory::createForCalendarId($calendarId);
     }
@@ -195,19 +207,25 @@ class Event
         }
     }
 
-    protected function getFieldName(string $name): string
+    protected function getFieldName($name)//: string
     {
-        return [
+        $array = [
             'name'          => 'summary',
             'description'   => 'description',
             'startDate'     => 'start.date',
             'endDate'       => 'end.date',
             'startDateTime' => 'start.dateTime',
             'endDateTime'   => 'end.dateTime',
-        ][$name] ?? $name;
+        ];
+
+        if (array_key_exists($name, $array)) {
+            return $array[$name];
+        } else {
+            return $name;
+        }
     }
 
-    public function getSortDate(): string
+    public function getSortDate()//: string
     {
         if ($this->startDate) {
             return $this->startDate;
