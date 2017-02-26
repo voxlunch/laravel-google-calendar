@@ -1,5 +1,5 @@
 {
-    "name": "spatie/laravel-google-calendar",
+    "name": "voxlunch/laravel-google-calendar",
     "description": "Manage events on a Google Calendar",
     "keywords": [
         "spatie",
@@ -20,7 +20,6 @@
         }
     ],
     "require": {
-        "php" : "^7.0",
         "google/apiclient": "^1.1.7",
         "illuminate/support": "^5.2.8",
         "nesbot/carbon": "^1.21"
